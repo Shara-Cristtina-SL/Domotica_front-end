@@ -23,8 +23,8 @@ export default function ComodosList() {
   const [expandedId, setExpandedId] = useState(null);
   const [nome, setNome] = useState("");
 
-  const toggleExpand = (id) => {
-    setExpandedId((prev) => (prev === id ? null : id));
+  const toggleExpand = (idComodo) => {
+    setExpandedId((prev) => (prev === idComodo ? null : idComodo));
   };
 
   async function handleAdd() {
@@ -37,21 +37,21 @@ export default function ComodosList() {
     }
   }
 
-  const handleEditar = async (id) => {
+  const handleEditar = async (idComodo) => {
     const novoNome = prompt("Digite o novo nome do cômodo:");
     if (novoNome) {
       try {
-        await editarComodo(id, { nome: novoNome });
+        await editarComodo(idComodo, { nome: novoNome });
       } catch (err) {
         alert(err.message);
       }
     }
   };
 
-  const handleExcluir = async (id) => {
+  const handleExcluir = async (idComodo) => {
     if (confirm("Deseja realmente excluir este cômodo?")) {
       try {
-        await excluirComodo(id);
+        await excluirComodo(idComodo);
       } catch (err) {
         alert(err.message);
       }
@@ -83,26 +83,26 @@ export default function ComodosList() {
 
       <ul>
         {comodos?.map((c) => (
-          <li key={c.id} style={{ marginBottom: "20px" }}>
+          <li key={c.idComodo} style={{ marginBottom: "20px" }}>
             <strong>{c.nome}</strong>
             <div style={{ marginTop: "5px", display: "flex", gap: "5px" }}>
-              <Button onClick={() => toggleExpand(c.id)}>
-                {expandedId === c.id ? "Ocultar detalhes" : "Detalhes"}
+              <Button onClick={() => toggleExpand(c.idComodo)}>
+                {expandedId === c.idComodo ? "Ocultar detalhes" : "Detalhes"}
               </Button>
-              <Button onClick={() => handleEditar(c.id)} color="green">
+              <Button onClick={() => handleEditar(c.idComodo)} color="green">
                 Editar
               </Button>
-              <Button onClick={() => handleExcluir(c.id)} color="red">
+              <Button onClick={() => handleExcluir(c.idComodo)} color="red">
                 Excluir
               </Button>
             </div>
 
-            {expandedId === c.id && (
+            {expandedId === c.idComodo && (
               <div style={{ marginLeft: "20px", marginTop: "10px" }}>
-                <DispositivosList comodoId={c.id} />
-                <GruposList comodoId={c.id} />
-                <CenasList comodoId={c.id} />
-                <AcoesList comodoId={c.id} />
+                <DispositivosList comodoID={c.idComodo} />
+                <GruposList idComodo={c.idComodo} />
+                <CenasList idComodo={c.idComodo} />
+                <AcoesList idComodo={c.idComodo} />
               </div>
             )}
           </li>

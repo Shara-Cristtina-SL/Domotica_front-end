@@ -15,7 +15,7 @@ import Loader from "../UI/Loader";
 import Alert from "../UI/Alert";
 import Card from "../UI/Card";
 
-export default function DispositivosList({ comodoId }) {
+export default function DispositivosList({ idComodo }) {
   const { data: dispositivos, loading, error } = usePolling(listarDispositivos, 3000);
   const [nome, setNome] = useState("");
 
@@ -24,7 +24,7 @@ export default function DispositivosList({ comodoId }) {
     try {
       await cadastrarDispositivo({
         nome,
-        comodoId, 
+        idComodo, 
       });
       setNome("");
     } catch (err) {
@@ -36,7 +36,7 @@ export default function DispositivosList({ comodoId }) {
     const novoNome = prompt("Novo nome:", atual.nome);
     if (novoNome) {
       try {
-        await editarDispositivo(id, { ...atual, nome: novoNome, comodoId });
+        await editarDispositivo(id, { ...atual, nome: novoNome, idComodo });
       } catch (err) {
         alert(err.message);
       }
@@ -56,7 +56,7 @@ export default function DispositivosList({ comodoId }) {
   if (loading && !dispositivos) return <Loader />;
   if (error) return <Alert message={error.message} type="error" />;
 
-  const filtrados = dispositivos?.filter((d) => d.comodoId === comodoId) || [];
+  const filtrados = dispositivos?.filter((d) => d.idComodo === idComodo) || [];
 
   return (
     <Card className="p-3">

@@ -25,7 +25,7 @@ export default function CenasList({ comodoId }) {
       await cadastrarCena({
         nome,
         descricao: "",
-        comodoId, // 🔑 necessário
+        comodoId, 
       });
       setNome("");
     } catch (err) {
@@ -36,7 +36,6 @@ export default function CenasList({ comodoId }) {
   if (loading && !cenas) return <Loader />;
   if (error) return <Alert message={error.message} type="error" />;
 
-  // 🔑 mostra apenas cenas do cômodo atual
   const filtradas = cenas?.filter((c) => c.comodoId === comodoId) || [];
 
   return (
@@ -57,25 +56,25 @@ export default function CenasList({ comodoId }) {
 
       <ul>
         {filtradas.map((c) => (
-          <li key={c.id} className="mb-3">
+          <li key={c.idCena} className="mb-3">
             {c.nome}
             <div className="flex gap-2 mt-1">
-              <Button onClick={() => ligarCena(c.id)} color="green">
+              <Button onClick={() => ligarCena(c.idCena)} color="green">
                 Ligar
               </Button>
-              <Button onClick={() => desligarCena(c.id)} color="gray">
+              <Button onClick={() => desligarCena(c.idCena)} color="gray">
                 Desligar
               </Button>
               <Button
                 onClick={() => {
                   const novoNome = prompt("Novo nome:", c.nome);
-                  if (novoNome) editarCena(c.id, { ...c, nome: novoNome });
+                  if (novoNome) editarCena(c.idCena, { ...c, nome: novoNome });
                 }}
                 color="blue"
               >
                 Editar
               </Button>
-              <Button onClick={() => excluirCena(c.id)} color="red">
+              <Button onClick={() => excluirCena(c.idCena)} color="red">
                 Excluir
               </Button>
             </div>

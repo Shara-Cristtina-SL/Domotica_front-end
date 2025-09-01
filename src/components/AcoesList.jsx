@@ -58,7 +58,7 @@ export default function AcoesList() {
         <select value={cenaId} onChange={(e) => setCenaId(e.target.value)}>
           <option value="">Selecione uma cena</option>
           {cenas?.map((c) => (
-            <option key={c.id} value={c.id}>
+            <option key={c.idAcao} value={c.idAcao}>
               {c.nome}
             </option>
           ))}
@@ -99,14 +99,14 @@ export default function AcoesList() {
                 onClick={() => {
                   const novaAcao = prompt("Nova ação (ligar/desligar):", a.acao);
                   if (novaAcao) {
-                    editarAcaoCena(a.id, { ...a, acao: novaAcao });
+                    editarAcaoCena(a.idAcao, { ...a, acao: novaAcao });
                   }
                 }}
                 color="green"
               >
                 Editar
               </Button>
-              <Button onClick={() => excluirAcaoCena(a.id)} color="red">
+              <Button onClick={() => excluirAcaoCena(a.idAcao)} color="red">
                 Excluir
               </Button>
             </div>
