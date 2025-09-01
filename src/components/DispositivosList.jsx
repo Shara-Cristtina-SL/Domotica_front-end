@@ -22,7 +22,10 @@ export default function DispositivosList({ comodoId }) {
   async function handleAdd() {
     if (!nome) return;
     try {
-      await cadastrarDispositivo({ nome, idComodo: comodoId, estado: false });
+      await cadastrarDispositivo({
+        nome,
+        comodoId, 
+      });
       setNome("");
     } catch (err) {
       alert(err.message);
@@ -33,7 +36,7 @@ export default function DispositivosList({ comodoId }) {
     const novoNome = prompt("Novo nome:", atual.nome);
     if (novoNome) {
       try {
-        await editarDispositivo(id, { ...atual, nome: novoNome });
+        await editarDispositivo(id, { ...atual, nome: novoNome, comodoId });
       } catch (err) {
         alert(err.message);
       }
@@ -50,9 +53,10 @@ export default function DispositivosList({ comodoId }) {
     }
   };
 
+  if (loading && !dispositivos) return <Loader />;
   if (error) return <Alert message={error.message} type="error" />;
 
-  const filtrados = dispositivos?.filter((d) => d.idComodo === comodoId) || [];
+  const filtrados = dispositivos?.filter((d) => d.comodoId === comodoId) || [];
 
   return (
     <Card className="p-3">
@@ -82,7 +86,7 @@ export default function DispositivosList({ comodoId }) {
               <Button onClick={() => desligarDispositivo(d.id)} color="gray">
                 Desligar
               </Button>
-              <Button onClick={() => handleEditar(d.id, d)} color="green">
+              <Button onClick={() => handleEditar(d.id, d)} color="blue">
                 Editar
               </Button>
               <Button onClick={() => handleExcluir(d.id)} color="red">

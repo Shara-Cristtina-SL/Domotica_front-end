@@ -23,12 +23,6 @@ export default function GruposList({ comodoId }) {
   const [nome, setNome] = useState("");
   const [selecionados, setSelecionados] = useState([]);
 
-  const toggleSelecionado = (id) => {
-    setSelecionados((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
-
   async function handleAdd() {
     if (!nome || selecionados.length === 0) {
       alert("Informe o nome e pelo menos 1 dispositivo");
@@ -37,7 +31,7 @@ export default function GruposList({ comodoId }) {
     try {
       await cadastrarGrupo({
         nome,
-        dispositivos: selecionados.map((id) => ({ idDispositivo: id })),
+        dispositivos: selecionados.map((id) => ({ idDispositivo: Number(id) })), // ✅ formato correto
       });
       setNome("");
       setSelecionados([]);
@@ -70,6 +64,10 @@ export default function GruposList({ comodoId }) {
   if (loading && !grupos) return <Loader />;
   if (error) return <Alert message={error.message} type="error" />;
 
+  // só dispositivos do cômodo atual
+  const filtrados =
+    dispositivos?.filter((d) => !comodoId || d.comodoId === comodoId) || [];
+
   return (
     <Card className="p-4">
       <h2>Grupos {loading && <span>⏳</span>}</h2>
@@ -86,18 +84,22 @@ export default function GruposList({ comodoId }) {
 
         <div style={{ margin: "10px 0" }}>
           <p>Selecione dispositivos:</p>
-          {dispositivos
-            ?.filter((d) => !comodoId || d.comodoId === comodoId)
-            .map((d) => (
-              <label key={d.id} style={{ display: "block" }}>
-                <input
-                  type="checkbox"
-                  checked={selecionados.includes(d.id)}
-                  onChange={() => toggleSelecionado(d.id)}
-                />{" "}
+          <select
+            multiple
+            value={selecionados}
+            onChange={(e) =>
+              setSelecionados(
+                Array.from(e.target.selectedOptions, (opt) => opt.value)
+              )
+            }
+            style={{ width: "100%", minHeight: "80px" }}
+          >
+            {filtrados.map((d) => (
+              <option key={d.id} value={d.id}>
                 {d.nome}
-              </label>
+              </option>
             ))}
+          </select>
         </div>
 
         <Button onClick={handleAdd} color="green">

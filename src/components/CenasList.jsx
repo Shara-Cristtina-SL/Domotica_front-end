@@ -15,14 +15,18 @@ import Loader from "../UI/Loader";
 import Alert from "../UI/Alert";
 import Card from "../UI/Card";
 
-export default function CenasList() {
+export default function CenasList({ comodoId }) {
   const { data: cenas, loading, error } = usePolling(listarCenas, 3000);
   const [nome, setNome] = useState("");
 
   async function handleAdd() {
     if (!nome) return;
     try {
-      await cadastrarCena({ nome, descricao: "" });
+      await cadastrarCena({
+        nome,
+        descricao: "",
+        comodoId, // 🔑 necessário
+      });
       setNome("");
     } catch (err) {
       alert(err.message);
@@ -31,6 +35,9 @@ export default function CenasList() {
 
   if (loading && !cenas) return <Loader />;
   if (error) return <Alert message={error.message} type="error" />;
+
+  // 🔑 mostra apenas cenas do cômodo atual
+  const filtradas = cenas?.filter((c) => c.comodoId === comodoId) || [];
 
   return (
     <Card className="p-4">
@@ -49,7 +56,7 @@ export default function CenasList() {
       </div>
 
       <ul>
-        {cenas?.map((c) => (
+        {filtradas.map((c) => (
           <li key={c.id} className="mb-3">
             {c.nome}
             <div className="flex gap-2 mt-1">
@@ -76,7 +83,9 @@ export default function CenasList() {
         ))}
       </ul>
 
-      {cenas?.length === 0 && !loading && <p>Nenhuma cena encontrada.</p>}
+      {filtradas.length === 0 && !loading && (
+        <p>Nenhuma cena encontrada.</p>
+      )}
     </Card>
   );
 }
