@@ -1,5 +1,5 @@
 {
-  "name": "casa-inteligente",
+  "name": "nome-do-projeto",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "prop-types": "^15.8.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },

@@ -4,26 +4,51 @@ export function listarAcoesCena() {
   return request("/acaocenas");
 }
 
-export function cadastrarAcaoCena({ nome, idCena, dispositivos, grupos }) {
+export function cadastrarAcaoCena({
+  nome,
+  ordem,
+  intervaloSegundos,
+  estadoDesejado,
+  idCena,
+  dispositivos,
+  grupos,
+}) {
   return request("/acaocenas", {
     method: "POST",
     body: JSON.stringify({
       nome,
+      ordem,
+      intervaloSegundos,
+      estadoDesejado,
       cena: { idCena },
-      dispositivos: dispositivos.map((id) => ({ idDispositivo: id })),
-      grupos: grupos.map((id) => ({ idGrupo: id })),
+      dispositivos: dispositivos.map((d) => ({ idDispositivo: d })),
+      grupos: grupos.map((g) => ({ idGrupo: g })),
     }),
   });
 }
 
-export function editarAcaoCena(id, { nome, idCena, dispositivos, grupos }) {
+export function editarAcaoCena(
+  id,
+  {
+    nome,
+    ordem,
+    intervaloSegundos,
+    estadoDesejado,
+    idCena,
+    dispositivos,
+    grupos,
+  }
+) {
   return request(`/acaocenas/${id}`, {
     method: "PUT",
     body: JSON.stringify({
       nome,
+      ordem,
+      intervaloSegundos,
+      estadoDesejado,
       cena: { idCena },
-      dispositivos: dispositivos.map((id) => ({ idDispositivo: id })),
-      grupos: grupos.map((id) => ({ idGrupo: id })),
+      dispositivos: dispositivos.map((d) => ({ idDispositivo: d })),
+      grupos: grupos.map((g) => ({ idGrupo: g })),
     }),
   });
 }
