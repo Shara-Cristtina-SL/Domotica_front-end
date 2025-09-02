@@ -1,4 +1,4 @@
-const API_URL = "https://31.97.22.121:8080";
+const API_URL = "http://31.97.22.121:8080";
 
 export async function request(endpoint, options = {}) {
   const res = await fetch(`${API_URL}${endpoint}`, {
