@@ -30,21 +30,22 @@ export default function Grupos() {
     data: grupos,
     loading: loadingGrupos,
     error: errorGrupos,
+    refetch: refetchGrupos,
   } = usePolling(listarGrupos, 5000);
+
   const {
     data: dispositivos,
     loading: loadingDispositivos,
     error: errorDispositivos,
+    refetch: refetchDispositivos,
   } = usePolling(listarDispositivos, 5000);
 
-  if (errorGrupos) {
+  if (errorGrupos)
     setToast({ message: "Erro ao carregar grupos", variant: "error" });
-  }
-  if (errorDispositivos) {
+  if (errorDispositivos)
     setToast({ message: "Erro ao carregar dispositivos", variant: "error" });
-  }
 
-  function handleCadastrar() {
+  async function handleCadastrar() {
     if (!novoNome.trim()) {
       setToast({ message: "Informe o nome do grupo", variant: "error" });
       return;
@@ -58,19 +59,21 @@ export default function Grupos() {
     }
 
     setLoading(true);
-    cadastrarGrupo({ nome: novoNome, dispositivos: novoDispositivos })
-      .then(() => {
-        setToast({
-          message: "Grupo cadastrado com sucesso!",
-          variant: "success",
-        });
-        setNovoNome("");
-        setNovoDispositivos([]);
-      })
-      .catch(() =>
-        setToast({ message: "Erro ao cadastrar grupo", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+    try {
+      await cadastrarGrupo({ nome: novoNome, dispositivos: novoDispositivos });
+      setToast({
+        message: "Grupo cadastrado com sucesso!",
+        variant: "success",
+      });
+      setNovoNome("");
+      setNovoDispositivos([]);
+      await refetchGrupos();
+      await refetchDispositivos();
+    } catch {
+      setToast({ message: "Erro ao cadastrar grupo", variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   }
 
   function iniciarEdicao(grupo) {
@@ -85,7 +88,7 @@ export default function Grupos() {
     setEditandoDispositivos([]);
   }
 
-  function salvarEdicao() {
+  async function salvarEdicao() {
     if (!editandoNome.trim()) {
       setToast({ message: "Informe o nome do grupo", variant: "error" });
       return;
@@ -99,63 +102,69 @@ export default function Grupos() {
     }
 
     setLoading(true);
-    editarGrupo(editandoId, {
-      nome: editandoNome,
-      dispositivos: editandoDispositivos,
-    })
-      .then(() => {
-        setToast({ message: "Grupo editado com sucesso!", variant: "success" });
-        cancelarEdicao();
-      })
-      .catch(() =>
-        setToast({ message: "Erro ao editar grupo", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+    try {
+      await editarGrupo(editandoId, {
+        nome: editandoNome,
+        dispositivos: editandoDispositivos,
+      });
+      setToast({ message: "Grupo editado com sucesso!", variant: "success" });
+      cancelarEdicao();
+      await refetchGrupos();
+      await refetchDispositivos();
+    } catch {
+      setToast({ message: "Erro ao editar grupo", variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function handleExcluir(idGrupo) {
+  async function handleExcluir(idGrupo) {
     setLoading(true);
-    excluirGrupo(idGrupo)
-      .then(() => {
-        setToast({
-          message: "Grupo excluído com sucesso!",
-          variant: "success",
-        });
-      })
-      .catch(() =>
-        setToast({ message: "Erro ao excluir grupo", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+    try {
+      await excluirGrupo(idGrupo);
+      setToast({ message: "Grupo excluído com sucesso!", variant: "success" });
+      await refetchGrupos();
+      await refetchDispositivos();
+    } catch {
+      setToast({ message: "Erro ao excluir grupo", variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function handleLigar(idGrupo) {
+  async function handleLigar(idGrupo) {
     setLoading(true);
-    ligarGrupo(idGrupo)
-      .then(() => {
-        setToast({ message: "Grupo ligado!", variant: "success" });
-      })
-      .catch(() =>
-        setToast({ message: "Erro ao ligar grupo", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+    try {
+      await ligarGrupo(idGrupo);
+      setToast({ message: "Grupo ligado!", variant: "success" });
+      await refetchGrupos();
+      await refetchDispositivos();
+    } catch {
+      setToast({ message: "Erro ao ligar grupo", variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function handleDesligar(idGrupo) {
+  async function handleDesligar(idGrupo) {
     setLoading(true);
-    desligarGrupo(idGrupo)
-      .then(() => {
-        setToast({ message: "Grupo desligado!", variant: "success" });
-      })
-      .catch(() =>
-        setToast({ message: "Erro ao desligar grupo", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+    try {
+      await desligarGrupo(idGrupo);
+      setToast({ message: "Grupo desligado!", variant: "success" });
+      await refetchGrupos();
+      await refetchDispositivos();
+    } catch {
+      setToast({ message: "Erro ao desligar grupo", variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="max-w-md mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Lista de Grupos</h1>
 
+      {/* Formulário de cadastro */}
       <div className="flex flex-col mb-4 space-y-2">
         <input
           type="text"
@@ -177,13 +186,12 @@ export default function Grupos() {
                 checked={novoDispositivos.includes(dispositivo.idDispositivo)}
                 onChange={(e) => {
                   const id = dispositivo.idDispositivo;
-                  if (e.target.checked) {
+                  if (e.target.checked)
                     setNovoDispositivos([...novoDispositivos, id]);
-                  } else {
+                  else
                     setNovoDispositivos(
                       novoDispositivos.filter((i) => i !== id)
                     );
-                  }
                 }}
               />
               <span>{dispositivo.nome}</span>
@@ -196,6 +204,7 @@ export default function Grupos() {
 
       {loading || loadingGrupos || loadingDispositivos ? <Spinner /> : null}
 
+      {/* Lista de grupos */}
       <ul>
         {grupos?.map((grupo) => (
           <li
@@ -225,16 +234,15 @@ export default function Grupos() {
                         )}
                         onChange={(e) => {
                           const id = dispositivo.idDispositivo;
-                          if (e.target.checked) {
+                          if (e.target.checked)
                             setEditandoDispositivos([
                               ...editandoDispositivos,
                               id,
                             ]);
-                          } else {
+                          else
                             setEditandoDispositivos(
                               editandoDispositivos.filter((i) => i !== id)
                             );
-                          }
                         }}
                       />
                       <span>{dispositivo.nome}</span>
