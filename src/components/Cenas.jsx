@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   listarCenas,
   cadastrarCena,
@@ -11,10 +11,9 @@ import {
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { Toast } from "../ui/Toast";
+import { usePolling } from "../hooks/usePolling";
 
 export default function Cenas() {
-  const [cenas, setCenas] = useState([]);
-
   const [novoNome, setNovoNome] = useState("");
   const [editandoId, setEditandoId] = useState(null);
   const [editandoNome, setEditandoNome] = useState("");
@@ -22,18 +21,15 @@ export default function Cenas() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ message: "", variant: "success" });
 
-  useEffect(() => {
-    carregarCenas();
-  }, []);
+  const {
+    data: cenas,
+    error,
+    loading: loadingCenas,
+    refetch: refetchCenas,
+  } = usePolling(listarCenas, 5000);
 
-  function carregarCenas() {
-    setLoading(true);
-    listarCenas()
-      .then(setCenas)
-      .catch(() =>
-        setToast({ message: "Erro ao carregar cenas", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+  if (error) {
+    setToast({ message: "Erro ao carregar cenas", variant: "error" });
   }
 
   function handleCadastrar() {
@@ -43,14 +39,14 @@ export default function Cenas() {
     }
 
     setLoading(true);
-    cadastrarCena({ nome: novoNome, descricao: "" }) 
+    cadastrarCena({ nome: novoNome, descricao: "" })
       .then(() => {
         setToast({
           message: "Cena cadastrada com sucesso!",
           variant: "success",
         });
         setNovoNome("");
-        carregarCenas();
+        refetchCenas();
       })
       .catch(() =>
         setToast({ message: "Erro ao cadastrar cena", variant: "error" })
@@ -79,7 +75,7 @@ export default function Cenas() {
       .then(() => {
         setToast({ message: "Cena editada com sucesso!", variant: "success" });
         cancelarEdicao();
-        carregarCenas();
+        refetchCenas();
       })
       .catch(() =>
         setToast({ message: "Erro ao editar cena", variant: "error" })
@@ -92,7 +88,7 @@ export default function Cenas() {
     excluirCena(idCena)
       .then(() => {
         setToast({ message: "Cena excluída com sucesso!", variant: "success" });
-        carregarCenas();
+        refetchCenas();
       })
       .catch(() =>
         setToast({ message: "Erro ao excluir cena", variant: "error" })
@@ -105,7 +101,7 @@ export default function Cenas() {
     ligarCena(idCena)
       .then(() => {
         setToast({ message: "Cena ativada!", variant: "success" });
-        carregarCenas();
+        refetchCenas();
       })
       .catch(() =>
         setToast({ message: "Erro ao ativar cena", variant: "error" })
@@ -118,7 +114,7 @@ export default function Cenas() {
     desligarCena(idCena)
       .then(() => {
         setToast({ message: "Cena desativada!", variant: "success" });
-        carregarCenas();
+        refetchCenas();
       })
       .catch(() =>
         setToast({ message: "Erro ao desativar cena", variant: "error" })
@@ -141,10 +137,10 @@ export default function Cenas() {
         <Button label="Cadastrar" onClick={handleCadastrar} variant="create" />
       </div>
 
-      {loading && <Spinner />}
+      {loading || loadingCenas ? <Spinner /> : null}
 
       <ul>
-        {cenas.map((cena) => (
+        {(Array.isArray(cenas) ? cenas : []).map((cena) => (
           <li
             key={cena.idCena}
             className="mb-2 flex flex-col space-y-2 border p-3 rounded"
@@ -157,7 +153,6 @@ export default function Cenas() {
                   onChange={(e) => setEditandoNome(e.target.value)}
                   className="px-3 py-2 border rounded-md"
                 />
-
                 <div className="space-x-2">
                   <Button
                     label="Salvar"

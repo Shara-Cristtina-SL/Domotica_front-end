@@ -34,6 +34,7 @@ export default function AcoesCena() {
     data: acoes,
     error: errorAcoes,
     loading: loadingAcoes,
+    refetch: refetchAcoes,
   } = usePolling(listarAcoesCena, 5000);
 
   const {
@@ -99,6 +100,7 @@ export default function AcoesCena() {
           variant: "success",
         });
         resetForm();
+        refetchAcoes();
       })
       .catch(() =>
         setToast({ message: "Erro ao cadastrar ação", variant: "error" })
@@ -138,6 +140,7 @@ export default function AcoesCena() {
       .then(() => {
         setToast({ message: "Ação editada com sucesso!", variant: "success" });
         cancelarEdicao();
+        refetchAcoes();
       })
       .catch(() =>
         setToast({ message: "Erro ao editar ação", variant: "error" })
@@ -150,6 +153,7 @@ export default function AcoesCena() {
     excluirAcaoCena(id)
       .then(() => {
         setToast({ message: "Ação excluída com sucesso!", variant: "success" });
+        refetchAcoes();
       })
       .catch(() =>
         setToast({ message: "Erro ao excluir ação", variant: "error" })
@@ -160,7 +164,10 @@ export default function AcoesCena() {
   function handleExecutar(id) {
     setLoading(true);
     executarAcaoCena(id)
-      .then(() => setToast({ message: "Ação executada!", variant: "success" }))
+      .then(() => {
+        setToast({ message: "Ação executada!", variant: "success" });
+        refetchAcoes();
+      })
       .catch(() =>
         setToast({ message: "Erro ao executar ação", variant: "error" })
       )
@@ -179,6 +186,7 @@ export default function AcoesCena() {
     <div className="max-w-3xl mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Ações de Cena</h2>
 
+      {/* Formulário */}
       <div className="flex flex-col space-y-2 border p-4 rounded-md">
         <input
           type="text"
@@ -307,6 +315,7 @@ export default function AcoesCena() {
         <Spinner />
       ) : null}
 
+      {/* Lista */}
       <ul className="mt-6 space-y-4">
         {(Array.isArray(acoes) ? acoes : []).map((acao) => (
           <li key={acao.idAcao} className="border p-4 rounded-md shadow">
