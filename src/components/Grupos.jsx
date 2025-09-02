@@ -178,7 +178,6 @@ export default function Grupos() {
           className="px-3 py-2 border rounded-md"
         />
 
-        {/* Checkboxes para cadastro */}
         <div className="max-h-48 overflow-auto border rounded p-2 mb-4">
           {dispositivos.map((dispositivo) => (
             <label

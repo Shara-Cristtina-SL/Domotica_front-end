@@ -4,7 +4,6 @@ import Dispositivos from "./components/Dispositivos";
 import Cenas from "./components/Cenas";
 import Grupos from "./components/Grupos";
 import AcoesCena from "./components/AcoesCenas";
-import "./index.css";
 
 const componentes = [
   { id: "comodos", label: "Cômodos", component: <Comodos /> },
