@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   listarDispositivos,
   cadastrarDispositivo,
@@ -13,11 +13,9 @@ import { listarComodos } from "../api/comodos";
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { Toast } from "../ui/Toast";
+import { usePolling } from "../hooks/usePolling"; 
 
 export default function Dispositivos() {
-  const [dispositivos, setDispositivos] = useState([]);
-  const [comodos, setComodos] = useState([]);
-
   const [novoNome, setNovoNome] = useState("");
   const [novoEstado, setNovoEstado] = useState(false);
   const [novoIdComodo, setNovoIdComodo] = useState("");
@@ -30,27 +28,23 @@ export default function Dispositivos() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ message: "", variant: "success" });
 
-  useEffect(() => {
-    carregarDispositivos();
-    carregarComodos();
-  }, []);
+  const {
+    data: dispositivos,
+    error: errorDispositivos,
+    loading: loadingDispositivos,
+  } = usePolling(listarDispositivos, 5000);
+  const {
+    data: comodos,
+    error: errorComodos,
+    loading: loadingComodos,
+  } = usePolling(listarComodos, 5000);
 
-  function carregarDispositivos() {
-    setLoading(true);
-    listarDispositivos()
-      .then(setDispositivos)
-      .catch(() =>
-        setToast({ message: "Erro ao carregar dispositivos", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+  if (errorDispositivos) {
+    setToast({ message: "Erro ao carregar dispositivos", variant: "error" });
   }
 
-  function carregarComodos() {
-    listarComodos()
-      .then(setComodos)
-      .catch(() =>
-        setToast({ message: "Erro ao carregar cômodos", variant: "error" })
-      );
+  if (errorComodos) {
+    setToast({ message: "Erro ao carregar cômodos", variant: "error" });
   }
 
   function handleCadastrar() {
@@ -78,7 +72,6 @@ export default function Dispositivos() {
         setNovoNome("");
         setNovoEstado(false);
         setNovoIdComodo("");
-        carregarDispositivos();
       })
       .catch(() =>
         setToast({ message: "Erro ao cadastrar dispositivo", variant: "error" })
@@ -123,7 +116,6 @@ export default function Dispositivos() {
           variant: "success",
         });
         cancelarEdicao();
-        carregarDispositivos();
       })
       .catch(() =>
         setToast({ message: "Erro ao editar dispositivo", variant: "error" })
@@ -139,7 +131,6 @@ export default function Dispositivos() {
           message: "Dispositivo excluído com sucesso!",
           variant: "success",
         });
-        carregarDispositivos();
       })
       .catch(() =>
         setToast({ message: "Erro ao excluir dispositivo", variant: "error" })
@@ -152,7 +143,6 @@ export default function Dispositivos() {
     ligarDispositivo(idDispositivo)
       .then(() => {
         setToast({ message: "Dispositivo ligado!", variant: "success" });
-        carregarDispositivos();
       })
       .catch(() =>
         setToast({ message: "Erro ao ligar dispositivo", variant: "error" })
@@ -165,7 +155,6 @@ export default function Dispositivos() {
     desligarDispositivo(idDispositivo)
       .then(() => {
         setToast({ message: "Dispositivo desligado!", variant: "success" });
-        carregarDispositivos();
       })
       .catch(() =>
         setToast({ message: "Erro ao desligar dispositivo", variant: "error" })
@@ -192,7 +181,7 @@ export default function Dispositivos() {
           className="px-3 py-2 border rounded-md"
         >
           <option value="">Selecione um cômodo</option>
-          {comodos.map((comodo) => (
+          {comodos?.map((comodo) => (
             <option key={comodo.idComodo} value={comodo.idComodo}>
               {comodo.nome}
             </option>
@@ -211,10 +200,10 @@ export default function Dispositivos() {
         <Button label="Cadastrar" onClick={handleCadastrar} variant="create" />
       </div>
 
-      {loading && <Spinner />}
+      {loading || loadingDispositivos || loadingComodos ? <Spinner /> : null}
 
       <ul>
-        {dispositivos.map((dispositivo) => (
+        {dispositivos?.map((dispositivo) => (
           <li
             key={dispositivo.idDispositivo}
             className="mb-2 flex flex-col space-y-2 border p-3 rounded"
@@ -234,7 +223,7 @@ export default function Dispositivos() {
                   className="px-3 py-2 border rounded-md"
                 >
                   <option value="">Selecione um cômodo</option>
-                  {comodos.map((comodo) => (
+                  {comodos?.map((comodo) => (
                     <option key={comodo.idComodo} value={comodo.idComodo}>
                       {comodo.nome}
                     </option>

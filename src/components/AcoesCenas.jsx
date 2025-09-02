@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+
 import {
   listarAcoesCena,
   cadastrarAcaoCena,
@@ -14,12 +15,9 @@ import { listarGrupos } from "../api/grupos";
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { Toast } from "../ui/Toast";
+import { usePolling } from "../hooks/usePolling"; // Importando o hook usePolling
 
 export default function AcoesCena() {
-  const [acoes, setAcoes] = useState([]);
-  const [cenas, setCenas] = useState([]);
-  const [dispositivos, setDispositivos] = useState([]);
-  const [grupos, setGrupos] = useState([]);
 
   const [nome, setNome] = useState("");
   const [ordem, setOrdem] = useState(1);
@@ -34,6 +32,7 @@ export default function AcoesCena() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ message: "", variant: "success" });
 
+<<<<<<< HEAD
   useEffect(() => {
     carregarDados();
   }, []);
@@ -56,6 +55,34 @@ export default function AcoesCena() {
         setToast({ message: "Erro ao carregar dados", variant: "error" })
       )
       .finally(() => setLoading(false));
+=======
+  const {
+    data: acoes,
+    error: errorAcoes,
+    loading: loadingAcoes,
+  } = usePolling(listarAcoesCena, 5000);
+
+  const {
+    data: cenas,
+    error: errorCenas,
+    loading: loadingCenas,
+  } = usePolling(listarCenas, 5000);
+
+  const {
+    data: dispositivos,
+    error: errorDispositivos,
+    loading: loadingDispositivos,
+  } = usePolling(listarDispositivos, 5000);
+
+  const {
+    data: grupos,
+    error: errorGrupos,
+    loading: loadingGrupos,
+  } = usePolling(listarGrupos, 5000);
+
+  if (errorAcoes || errorCenas || errorDispositivos || errorGrupos) {
+    setToast({ message: "Erro ao carregar dados", variant: "error" });
+>>>>>>> origin/master
   }
 
   function resetForm() {
@@ -99,7 +126,10 @@ export default function AcoesCena() {
           variant: "success",
         });
         resetForm();
+<<<<<<< HEAD
         carregarDados();
+=======
+>>>>>>> origin/master
       })
       .catch(() =>
         setToast({ message: "Erro ao cadastrar ação", variant: "error" })
@@ -139,7 +169,10 @@ export default function AcoesCena() {
       .then(() => {
         setToast({ message: "Ação editada com sucesso!", variant: "success" });
         cancelarEdicao();
+<<<<<<< HEAD
         carregarDados();
+=======
+>>>>>>> origin/master
       })
       .catch(() =>
         setToast({ message: "Erro ao editar ação", variant: "error" })
@@ -152,7 +185,10 @@ export default function AcoesCena() {
     excluirAcaoCena(id)
       .then(() => {
         setToast({ message: "Ação excluída com sucesso!", variant: "success" });
+<<<<<<< HEAD
         carregarDados();
+=======
+>>>>>>> origin/master
       })
       .catch(() =>
         setToast({ message: "Erro ao excluir ação", variant: "error" })
@@ -221,7 +257,11 @@ export default function AcoesCena() {
           className="px-3 py-2 border rounded-md"
         >
           <option value="">Selecione uma cena</option>
+<<<<<<< HEAD
           {cenas.map((c) => (
+=======
+          {cenas?.map((c) => (
+>>>>>>> origin/master
             <option key={c.idCena} value={c.idCena}>
               {c.nome}
             </option>
@@ -231,7 +271,11 @@ export default function AcoesCena() {
         <fieldset className="border rounded p-2 max-h-40 overflow-auto">
           <legend className="font-semibold mb-1">Dispositivos</legend>
           <div className="grid grid-cols-2 gap-2">
+<<<<<<< HEAD
             {dispositivos.map((d) => (
+=======
+            {(Array.isArray(dispositivos) ? dispositivos : []).map((d) => (
+>>>>>>> origin/master
               <label
                 key={d.idDispositivo}
                 className="flex items-center space-x-2"
@@ -256,7 +300,11 @@ export default function AcoesCena() {
         <fieldset className="border rounded p-2 max-h-40 overflow-auto mt-2">
           <legend className="font-semibold mb-1">Grupos</legend>
           <div className="grid grid-cols-2 gap-2">
+<<<<<<< HEAD
             {grupos.map((g) => (
+=======
+            {(Array.isArray(grupos) ? grupos : []).map((g) => (
+>>>>>>> origin/master
               <label key={g.idGrupo} className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -302,11 +350,25 @@ export default function AcoesCena() {
         </div>
       </div>
 
+<<<<<<< HEAD
       {loading && <Spinner />}
 
       <ul className="mt-6 space-y-4">
         {acoes.map((acao) => (
           <li key={acao.idAcao} className="border p-4 rounded-md  shadow">
+=======
+      {loading ||
+      loadingDispositivos ||
+      loadingAcoes ||
+      loadingCenas ||
+      loadingGrupos ? (
+        <Spinner />
+      ) : null}
+
+      <ul className="mt-6 space-y-4">
+        {(Array.isArray(acoes) ? acoes : []).map((acao) => (
+          <li key={acao.idAcao} className="border p-4 rounded-md shadow">
+>>>>>>> origin/master
             <div className="flex justify-between items-center mb-2">
               <strong>{acao.nome}</strong>
               <div className="space-x-2">
