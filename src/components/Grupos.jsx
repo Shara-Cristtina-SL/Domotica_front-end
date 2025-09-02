@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   listarGrupos,
   cadastrarGrupo,
@@ -13,11 +13,9 @@ import { listarDispositivos } from "../api/dispositivos";
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { Toast } from "../ui/Toast";
+import { usePolling } from "../hooks/usePolling";
 
 export default function Grupos() {
-  const [grupos, setGrupos] = useState([]);
-  const [dispositivos, setDispositivos] = useState([]);
-
   const [novoNome, setNovoNome] = useState("");
   const [novoDispositivos, setNovoDispositivos] = useState([]);
 
@@ -28,27 +26,22 @@ export default function Grupos() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ message: "", variant: "success" });
 
-  useEffect(() => {
-    carregarGrupos();
-    carregarDispositivos();
-  }, []);
+  const {
+    data: grupos,
+    loading: loadingGrupos,
+    error: errorGrupos,
+  } = usePolling(listarGrupos, 5000);
+  const {
+    data: dispositivos,
+    loading: loadingDispositivos,
+    error: errorDispositivos,
+  } = usePolling(listarDispositivos, 5000);
 
-  function carregarGrupos() {
-    setLoading(true);
-    listarGrupos()
-      .then(setGrupos)
-      .catch(() =>
-        setToast({ message: "Erro ao carregar grupos", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+  if (errorGrupos) {
+    setToast({ message: "Erro ao carregar grupos", variant: "error" });
   }
-
-  function carregarDispositivos() {
-    listarDispositivos()
-      .then(setDispositivos)
-      .catch(() =>
-        setToast({ message: "Erro ao carregar dispositivos", variant: "error" })
-      );
+  if (errorDispositivos) {
+    setToast({ message: "Erro ao carregar dispositivos", variant: "error" });
   }
 
   function handleCadastrar() {
@@ -73,7 +66,6 @@ export default function Grupos() {
         });
         setNovoNome("");
         setNovoDispositivos([]);
-        carregarGrupos();
       })
       .catch(() =>
         setToast({ message: "Erro ao cadastrar grupo", variant: "error" })
@@ -114,7 +106,6 @@ export default function Grupos() {
       .then(() => {
         setToast({ message: "Grupo editado com sucesso!", variant: "success" });
         cancelarEdicao();
-        carregarGrupos();
       })
       .catch(() =>
         setToast({ message: "Erro ao editar grupo", variant: "error" })
@@ -130,7 +121,6 @@ export default function Grupos() {
           message: "Grupo excluído com sucesso!",
           variant: "success",
         });
-        carregarGrupos();
       })
       .catch(() =>
         setToast({ message: "Erro ao excluir grupo", variant: "error" })
@@ -143,7 +133,6 @@ export default function Grupos() {
     ligarGrupo(idGrupo)
       .then(() => {
         setToast({ message: "Grupo ligado!", variant: "success" });
-        carregarGrupos();
       })
       .catch(() =>
         setToast({ message: "Erro ao ligar grupo", variant: "error" })
@@ -156,7 +145,6 @@ export default function Grupos() {
     desligarGrupo(idGrupo)
       .then(() => {
         setToast({ message: "Grupo desligado!", variant: "success" });
-        carregarGrupos();
       })
       .catch(() =>
         setToast({ message: "Erro ao desligar grupo", variant: "error" })
@@ -168,7 +156,6 @@ export default function Grupos() {
     <div className="max-w-md mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Lista de Grupos</h1>
 
-      {/* Formulário cadastro */}
       <div className="flex flex-col mb-4 space-y-2">
         <input
           type="text"
@@ -179,7 +166,7 @@ export default function Grupos() {
         />
 
         <div className="max-h-48 overflow-auto border rounded p-2 mb-4">
-          {dispositivos.map((dispositivo) => (
+          {dispositivos?.map((dispositivo) => (
             <label
               key={dispositivo.idDispositivo}
               className="flex items-center space-x-2"
@@ -207,10 +194,10 @@ export default function Grupos() {
         <Button label="Cadastrar" onClick={handleCadastrar} variant="create" />
       </div>
 
-      {loading && <Spinner />}
+      {loading || loadingGrupos || loadingDispositivos ? <Spinner /> : null}
 
       <ul>
-        {grupos.map((grupo) => (
+        {grupos?.map((grupo) => (
           <li
             key={grupo.idGrupo}
             className="mb-2 flex flex-col space-y-2 border p-3 rounded"
@@ -224,9 +211,8 @@ export default function Grupos() {
                   className="px-3 py-2 border rounded-md"
                 />
 
-                {/* Checkboxes para edição */}
                 <div className="max-h-48 overflow-auto border rounded p-2 mb-4">
-                  {dispositivos.map((dispositivo) => (
+                  {dispositivos?.map((dispositivo) => (
                     <label
                       key={dispositivo.idDispositivo}
                       className="flex items-center space-x-2"

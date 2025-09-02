@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   listarComodos,
   cadastrarComodo,
@@ -9,33 +9,27 @@ import {
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { Toast } from "../ui/Toast";
+import { usePolling } from "../hooks/usePolling";
 
 export default function Comodos() {
-  const [comodos, setComodos] = useState([]);
   const [novoNome, setNovoNome] = useState("");
   const [editandoId, setEditandoId] = useState(null);
   const [editandoNome, setEditandoNome] = useState("");
-  const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ message: "", variant: "success" });
 
-  useEffect(() => {
-    carregarComodos();
-  }, []);
+  const {
+    data: comodos,
+    error,
+    loading: loadingPolling,
+  } = usePolling(listarComodos, 5000);
 
-  function carregarComodos() {
-    setLoading(true);
-    listarComodos()
-      .then(setComodos)
-      .catch(() =>
-        setToast({ message: "Erro ao carregar cômodos", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+  if (error) {
+    setToast({ message: "Erro ao carregar cômodos", variant: "error" });
   }
 
   function handleCadastrar() {
     if (!novoNome.trim()) return;
 
-    setLoading(true);
     cadastrarComodo({ nome: novoNome })
       .then(() => {
         setToast({
@@ -43,12 +37,10 @@ export default function Comodos() {
           variant: "success",
         });
         setNovoNome("");
-        carregarComodos();
       })
       .catch(() =>
         setToast({ message: "Erro ao cadastrar cômodo", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+      );
   }
 
   function iniciarEdicao(comodo) {
@@ -64,7 +56,6 @@ export default function Comodos() {
   function salvarEdicao() {
     if (!editandoNome.trim()) return;
 
-    setLoading(true);
     editarComodo(editandoId, { nome: editandoNome })
       .then(() => {
         setToast({
@@ -72,28 +63,23 @@ export default function Comodos() {
           variant: "success",
         });
         cancelarEdicao();
-        carregarComodos();
       })
       .catch(() =>
         setToast({ message: "Erro ao editar cômodo", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+      );
   }
 
   function handleExcluir(id) {
-    setLoading(true);
     excluirComodo(id)
       .then(() => {
         setToast({
           message: "Cômodo excluído com sucesso!",
           variant: "success",
         });
-        carregarComodos();
       })
       .catch(() =>
         setToast({ message: "Erro ao excluir cômodo", variant: "error" })
-      )
-      .finally(() => setLoading(false));
+      );
   }
 
   return (
@@ -111,48 +97,53 @@ export default function Comodos() {
         <Button label="Cadastrar" onClick={handleCadastrar} variant="create" />
       </div>
 
-      {loading && <Spinner />}
+      {loadingPolling && <Spinner />}
 
       <ul>
-        {comodos.map((comodo) => (
-          <li
-            key={comodo.idComodo}
-            className="mb-2 flex items-center justify-between"
-          >
-            {editandoId === comodo.idComodo ? (
-              <>
-                <input
-                  type="text"
-                  value={editandoNome}
-                  onChange={(e) => setEditandoNome(e.target.value)}
-                  className="flex-grow px-3 py-2 border rounded-l-md"
-                />
-                <Button label="Salvar" onClick={salvarEdicao} variant="edit" />
-                <Button
-                  label="Cancelar"
-                  onClick={cancelarEdicao}
-                  variant="default"
-                />
-              </>
-            ) : (
-              <>
-                <span>{comodo.nome}</span>
-                <div className="space-x-2">
+        {comodos &&
+          comodos.map((comodo) => (
+            <li
+              key={comodo.idComodo}
+              className="mb-2 flex items-center justify-between"
+            >
+              {editandoId === comodo.idComodo ? (
+                <>
+                  <input
+                    type="text"
+                    value={editandoNome}
+                    onChange={(e) => setEditandoNome(e.target.value)}
+                    className="flex-grow px-3 py-2 border rounded-l-md"
+                  />
                   <Button
-                    label="Editar"
-                    onClick={() => iniciarEdicao(comodo)}
+                    label="Salvar"
+                    onClick={salvarEdicao}
                     variant="edit"
                   />
                   <Button
-                    label="Excluir"
-                    onClick={() => handleExcluir(comodo.idComodo)}
-                    variant="delete"
+                    label="Cancelar"
+                    onClick={cancelarEdicao}
+                    variant="default"
                   />
-                </div>
-              </>
-            )}
-          </li>
-        ))}
+                </>
+              ) : (
+                <>
+                  <span>{comodo.nome}</span>
+                  <div className="space-x-2">
+                    <Button
+                      label="Editar"
+                      onClick={() => iniciarEdicao(comodo)}
+                      variant="edit"
+                    />
+                    <Button
+                      label="Excluir"
+                      onClick={() => handleExcluir(comodo.idComodo)}
+                      variant="delete"
+                    />
+                  </div>
+                </>
+              )}
+            </li>
+          ))}
       </ul>
 
       <Toast
