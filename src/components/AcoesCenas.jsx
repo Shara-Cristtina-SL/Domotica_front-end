@@ -14,7 +14,7 @@ import { listarGrupos } from "../api/grupos";
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { Toast } from "../ui/Toast";
-import { usePolling } from "../hooks/usePolling"; // Importando o hook usePolling
+import { usePolling } from "../hooks/usePolling";
 
 export default function AcoesCena() {
   const [nome, setNome] = useState("");
