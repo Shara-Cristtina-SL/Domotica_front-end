@@ -1,13 +1,28 @@
 .toast {
     position: fixed;
-    top: 1.2rem;
-    left: 80%;
+    top: 1rem;
+    left: 75%;
     padding: 0.75rem 1.25rem;
     border-radius: 6px;
     font-weight: 500;
     animation: slide-in 0.3s ease forwards;
     z-index: 60;
     transform: translateX(-100%);
+    max-width: 320px;
+    box-sizing: border-box;
+    word-wrap: break-word;
+}
+
+
+@media (max-width: 600px) {
+    .toast {
+        left: 12%;
+        transform: translateX(-50%);
+        width: 80%;
+
+        padding: 1rem;
+        font-size: 1rem;
+    }
 }
 
 .toast-success {
