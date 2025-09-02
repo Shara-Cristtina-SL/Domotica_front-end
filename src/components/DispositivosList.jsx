@@ -24,6 +24,7 @@ export default function DispositivosList({ idComodo }) {
     try {
       await cadastrarDispositivo({
         nome,
+        estado: false,
         idComodo, 
       });
       setNome("");
@@ -65,6 +66,7 @@ export default function DispositivosList({ idComodo }) {
         {loading && <span style={{ fontSize: "0.8em" }}>⏳ Atualizando...</span>}
       </h4>
 
+      {/* Formulário para adicionar */}
       <div className="flex gap-2 mb-2">
         <input
           type="text"
@@ -77,15 +79,27 @@ export default function DispositivosList({ idComodo }) {
         </Button>
       </div>
 
+      {/* Lista */}
       <ul>
         {filtrados.map((d) => (
-          <li key={d.id}>
-            {d.nome} ({d.estado ? "Ligado" : "Desligado"})
-            <div className="flex gap-2 mt-1">
-              <Button onClick={() => ligarDispositivo(d.id)}>Ligar</Button>
-              <Button onClick={() => desligarDispositivo(d.id)} color="gray">
-                Desligar
-              </Button>
+          <li key={d.id} className="flex items-center justify-between mb-2">
+            <span>{d.nome}</span>
+
+            {/* Toggle Switch */}
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={d.estado}
+                onChange={() =>
+                  d.estado
+                    ? desligarDispositivo(d.id)
+                    : ligarDispositivo(d.id)
+                }
+              />
+              {d.estado ? "Ligado" : "Desligado"}
+            </label>
+
+            <div className="flex gap-2">
               <Button onClick={() => handleEditar(d.id, d)} color="blue">
                 Editar
               </Button>
@@ -97,7 +111,9 @@ export default function DispositivosList({ idComodo }) {
         ))}
       </ul>
 
-      {filtrados.length === 0 && !loading && <p>Nenhum dispositivo encontrado.</p>}
+      {filtrados.length === 0 && !loading && (
+        <p>Nenhum dispositivo encontrado.</p>
+      )}
     </Card>
   );
 }

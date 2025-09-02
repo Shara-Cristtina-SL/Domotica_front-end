@@ -1,51 +1,23 @@
-//página principal
-
-import { useEffect, useState } from "react";
-import {
-  listarComodos,
-  listarDispositivos,
-  listarHistorico,
-  ligarDispositivo,
-  desligarDispositivo,
-} from "../api";
-
 import ComodosList from "../components/ComodosList";
-import DispositivosList from "../components/DispositivosList";
 import HistoricoList from "../components/HistoricoList";
+import Button from "../UI/Button";
 
-function Home() {
-  const [comodos, setComodos] = useState([]);
-  const [dispositivos, setDispositivos] = useState([]);
-  const [historico, setHistorico] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setComodos(await listarComodos());
-        setDispositivos(await listarDispositivos());
-        setHistorico(await listarHistorico());
-      } catch (err) {
-        console.error("Erro ao buscar dados:", err);
-      }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 3000); // polling a cada 3s
-    return () => clearInterval(interval);
-  }, []);
-
+export default function Home() {
   return (
-    <div style={{ padding: "2rem" }}>
+    <div className="p-4">
       <h1>🏠 Casa Inteligente</h1>
-      <ComodosList comodos={comodos} />
-      <DispositivosList
-        dispositivos={dispositivos}
-        onLigar={ligarDispositivo}
-        onDesligar={desligarDispositivo}
-      />
-      <HistoricoList historico={historico} />
+
+      {/* Lista de Cômodos (com cadastrar, editar, excluir, detalhes) */}
+      <ComodosList />
+
+      {/* Acesso rápido ao histórico completo */}
+      <div className="mt-6">
+        <h2>Histórico Geral</h2>
+        <Button onClick={() => window.location.href = "/historico"}>
+          Ver histórico completo
+        </Button>
+        <HistoricoList />
+      </div>
     </div>
   );
 }
-
-export default Home;
