@@ -4,6 +4,7 @@ import Dispositivos from "./components/Dispositivos";
 import Cenas from "./components/Cenas";
 import Grupos from "./components/Grupos";
 import AcoesCena from "./components/AcoesCenas";
+import "./App.css";
 
 const componentes = [
   { id: "comodos", label: "Cômodos", component: <Comodos /> },
@@ -14,48 +15,26 @@ const componentes = [
 ];
 
 export default function App() {
-  const [ativo, setAtivo] = useState(0);
+  const [ativo, setAtivo] = useState(componentes[0].id);
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden ">
-      <h1 className="text-3xl font-bold text-center p-4">
-        Gerenciador de Automação
-      </h1>
-
-      <div className="flex justify-center flex-wrap gap-2 border-b border-gray-700 px-4 pb-2">
-        {componentes.map((tab, index) => (
+    <div className="app-container">
+      <div className="tabs-container p-4">
+        {componentes.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setAtivo(index)}
-            className={`pb-2 px-3 font-semibold border-b-2 ${
-              ativo === index
-                ? "border-blue-500 text-blue-400"
-                : "border-transparent text-gray-400 hover:text-blue-400"
-            } transition-colors duration-300`}
+            className={`tab-button ${ativo === tab.id ? "active" : ""}`}
+            onClick={() => setAtivo(tab.id)}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      <div className="flex-1 relative overflow-hidden">
-        <div
-          className="flex transition-transform duration-500 h-full"
-          style={{
-            width: `${componentes.length * 100}%`,
-            transform: `translateX(-${ativo * (100 / componentes.length)}%)`,
-          }}
-        >
-          {componentes.map((tab) => (
-            <div
-              key={tab.id}
-              className="w-full flex-shrink-0 h-full overflow-auto px-4 py-4"
-              style={{ width: `${100 / componentes.length}%` }}
-            >
-              {tab.component}
-            </div>
-          ))}
-        </div>
+      <div className="app-content p-4">
+        {componentes.map(
+          (tab) => ativo === tab.id && <div key={tab.id}>{tab.component}</div>
+        )}
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ import { listarGrupos } from "../api/grupos";
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { Toast } from "../ui/Toast";
-import { usePolling } from "../hooks/usePolling"; // Importando o hook usePolling
+import { usePolling } from "../hooks/usePolling";
 
 export default function AcoesCena() {
   const [nome, setNome] = useState("");
@@ -34,6 +34,7 @@ export default function AcoesCena() {
     data: acoes,
     error: errorAcoes,
     loading: loadingAcoes,
+    refetch: refetchAcoes, 
   } = usePolling(listarAcoesCena, 5000);
 
   const {
@@ -94,11 +95,9 @@ export default function AcoesCena() {
       grupos: gruposSelecionados.map(Number),
     })
       .then(() => {
-        setToast({
-          message: "Ação cadastrada com sucesso!",
-          variant: "success",
-        });
+        setToast({ message: "Ação cadastrada com sucesso!", variant: "success" });
         resetForm();
+        refetchAcoes(); 
       })
       .catch(() =>
         setToast({ message: "Erro ao cadastrar ação", variant: "error" })
@@ -138,6 +137,7 @@ export default function AcoesCena() {
       .then(() => {
         setToast({ message: "Ação editada com sucesso!", variant: "success" });
         cancelarEdicao();
+        refetchAcoes(); 
       })
       .catch(() =>
         setToast({ message: "Erro ao editar ação", variant: "error" })
@@ -150,6 +150,7 @@ export default function AcoesCena() {
     excluirAcaoCena(id)
       .then(() => {
         setToast({ message: "Ação excluída com sucesso!", variant: "success" });
+        refetchAcoes(); 
       })
       .catch(() =>
         setToast({ message: "Erro ao excluir ação", variant: "error" })
@@ -160,7 +161,10 @@ export default function AcoesCena() {
   function handleExecutar(id) {
     setLoading(true);
     executarAcaoCena(id)
-      .then(() => setToast({ message: "Ação executada!", variant: "success" }))
+      .then(() => {
+        setToast({ message: "Ação executada!", variant: "success" });
+        refetchAcoes(); 
+      })
       .catch(() =>
         setToast({ message: "Erro ao executar ação", variant: "error" })
       )
@@ -179,6 +183,7 @@ export default function AcoesCena() {
     <div className="max-w-3xl mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Ações de Cena</h2>
 
+      {/* Formulário */}
       <div className="flex flex-col space-y-2 border p-4 rounded-md">
         <input
           type="text"
@@ -299,59 +304,29 @@ export default function AcoesCena() {
         </div>
       </div>
 
-      {loading ||
-      loadingDispositivos ||
-      loadingAcoes ||
-      loadingCenas ||
-      loadingGrupos ? (
+      {loading || loadingDispositivos || loadingAcoes || loadingCenas || loadingGrupos ? (
         <Spinner />
       ) : null}
 
+      {/* Lista */}
       <ul className="mt-6 space-y-4">
         {(Array.isArray(acoes) ? acoes : []).map((acao) => (
           <li key={acao.idAcao} className="border p-4 rounded-md shadow">
             <div className="flex justify-between items-center mb-2">
               <strong>{acao.nome}</strong>
               <div className="space-x-2">
-                <Button
-                  label="Editar"
-                  variant="edit"
-                  onClick={() => iniciarEdicao(acao)}
-                />
-                <Button
-                  label="Excluir"
-                  variant="delete"
-                  onClick={() => handleExcluir(acao.idAcao)}
-                />
-                <Button
-                  label="Executar"
-                  variant="default"
-                  onClick={() => handleExecutar(acao.idAcao)}
-                />
+                <Button label="Editar" variant="edit" onClick={() => iniciarEdicao(acao)} />
+                <Button label="Excluir" variant="delete" onClick={() => handleExcluir(acao.idAcao)} />
+                <Button label="Executar" variant="default" onClick={() => handleExecutar(acao.idAcao)} />
               </div>
             </div>
             <div className="text-sm space-y-1">
-              <p>
-                <strong>Ordem:</strong> {acao.ordem}
-              </p>
-              <p>
-                <strong>Intervalo (segundos):</strong> {acao.intervaloSegundos}
-              </p>
-              <p>
-                <strong>Estado desejado:</strong>{" "}
-                {acao.estadoDesejado ? "Ligado" : "Desligado"}
-              </p>
-              <p>
-                <strong>Cena:</strong> {acao.cena?.nome || "N/A"}
-              </p>
-              <p>
-                <strong>Dispositivos:</strong>{" "}
-                {acao.dispositivos.map((d) => d.nome).join(", ") || "Nenhum"}
-              </p>
-              <p>
-                <strong>Grupos:</strong>{" "}
-                {acao.grupos.map((g) => g.nome).join(", ") || "Nenhum"}
-              </p>
+              <p><strong>Ordem:</strong> {acao.ordem}</p>
+              <p><strong>Intervalo (segundos):</strong> {acao.intervaloSegundos}</p>
+              <p><strong>Estado desejado:</strong> {acao.estadoDesejado ? "Ligado" : "Desligado"}</p>
+              <p><strong>Cena:</strong> {acao.cena?.nome || "N/A"}</p>
+              <p><strong>Dispositivos:</strong> {acao.dispositivos.map((d) => d.nome).join(", ") || "Nenhum"}</p>
+              <p><strong>Grupos:</strong> {acao.grupos.map((g) => g.nome).join(", ") || "Nenhum"}</p>
             </div>
           </li>
         ))}

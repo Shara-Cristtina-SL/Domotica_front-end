@@ -13,7 +13,7 @@ import { listarComodos } from "../api/comodos";
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { Toast } from "../ui/Toast";
-import { usePolling } from "../hooks/usePolling"; 
+import { usePolling } from "../hooks/usePolling";
 
 export default function Dispositivos() {
   const [novoNome, setNovoNome] = useState("");
@@ -32,7 +32,9 @@ export default function Dispositivos() {
     data: dispositivos,
     error: errorDispositivos,
     loading: loadingDispositivos,
+    refetch: refetchDispositivos, //para atualizar lista
   } = usePolling(listarDispositivos, 5000);
+
   const {
     data: comodos,
     error: errorComodos,
@@ -72,6 +74,7 @@ export default function Dispositivos() {
         setNovoNome("");
         setNovoEstado(false);
         setNovoIdComodo("");
+        refetchDispositivos(); 
       })
       .catch(() =>
         setToast({ message: "Erro ao cadastrar dispositivo", variant: "error" })
@@ -116,6 +119,7 @@ export default function Dispositivos() {
           variant: "success",
         });
         cancelarEdicao();
+        refetchDispositivos(); 
       })
       .catch(() =>
         setToast({ message: "Erro ao editar dispositivo", variant: "error" })
@@ -131,6 +135,7 @@ export default function Dispositivos() {
           message: "Dispositivo excluído com sucesso!",
           variant: "success",
         });
+        refetchDispositivos();
       })
       .catch(() =>
         setToast({ message: "Erro ao excluir dispositivo", variant: "error" })
@@ -143,6 +148,7 @@ export default function Dispositivos() {
     ligarDispositivo(idDispositivo)
       .then(() => {
         setToast({ message: "Dispositivo ligado!", variant: "success" });
+        refetchDispositivos(); 
       })
       .catch(() =>
         setToast({ message: "Erro ao ligar dispositivo", variant: "error" })
@@ -155,6 +161,7 @@ export default function Dispositivos() {
     desligarDispositivo(idDispositivo)
       .then(() => {
         setToast({ message: "Dispositivo desligado!", variant: "success" });
+        refetchDispositivos(); 
       })
       .catch(() =>
         setToast({ message: "Erro ao desligar dispositivo", variant: "error" })
@@ -166,6 +173,7 @@ export default function Dispositivos() {
     <div className="max-w-md mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Lista de Dispositivos</h1>
 
+      {/* Formulário de cadastro */}
       <div className="flex flex-col mb-4 space-y-2">
         <input
           type="text"
@@ -202,6 +210,7 @@ export default function Dispositivos() {
 
       {loading || loadingDispositivos || loadingComodos ? <Spinner /> : null}
 
+      {/* Lista de dispositivos */}
       <ul>
         {dispositivos?.map((dispositivo) => (
           <li
@@ -240,11 +249,7 @@ export default function Dispositivos() {
                 </label>
 
                 <div className="space-x-2">
-                  <Button
-                    label="Salvar"
-                    onClick={salvarEdicao}
-                    variant="edit"
-                  />
+                  <Button label="Salvar" onClick={salvarEdicao} variant="edit" />
                   <Button
                     label="Cancelar"
                     onClick={cancelarEdicao}
@@ -300,6 +305,7 @@ export default function Dispositivos() {
         ))}
       </ul>
 
+      {/* Toast */}
       <Toast
         message={toast.message}
         variant={toast.variant}
