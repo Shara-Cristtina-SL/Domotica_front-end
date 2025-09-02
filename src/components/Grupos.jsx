@@ -26,12 +26,11 @@ export default function Grupos() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ message: "", variant: "success" });
 
-  // Polling automático a cada 5 segundos
   const {
     data: grupos,
     loading: loadingGrupos,
     error: errorGrupos,
-    refetch: refetchGrupos, // para atualizar imediatamente após ações
+    refetch: refetchGrupos, 
   } = usePolling(listarGrupos, 5000);
 
   const {

@@ -4,6 +4,7 @@ import Dispositivos from "./components/Dispositivos";
 import Cenas from "./components/Cenas";
 import Grupos from "./components/Grupos";
 import AcoesCena from "./components/AcoesCenas";
+import Microfone from "./components/Microfone";
 import "./App.css";
 
 const componentes = [
@@ -35,6 +36,10 @@ export default function App() {
         {componentes.map(
           (tab) => ativo === tab.id && <div key={tab.id}>{tab.component}</div>
         )}
+      </div>
+
+      <div className="microfone-container">
+        <Microfone />
       </div>
     </div>
   );

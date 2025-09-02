@@ -21,7 +21,7 @@ export default function Comodos() {
     data: comodos,
     error,
     loading: loadingPolling,
-    refetch, // agora temos o refetch
+    refetch, 
   } = usePolling(listarComodos, 5000);
 
   if (error) {
@@ -38,7 +38,7 @@ export default function Comodos() {
           variant: "success",
         });
         setNovoNome("");
-        refetch(); // força atualização imediata
+        refetch(); 
       })
       .catch(() =>
         setToast({ message: "Erro ao cadastrar cômodo", variant: "error" })
@@ -65,7 +65,7 @@ export default function Comodos() {
           variant: "success",
         });
         cancelarEdicao();
-        refetch(); // atualiza lista logo após edição
+        refetch(); 
       })
       .catch(() =>
         setToast({ message: "Erro ao editar cômodo", variant: "error" })
@@ -79,7 +79,7 @@ export default function Comodos() {
           message: "Cômodo excluído com sucesso!",
           variant: "success",
         });
-        refetch(); // remove da lista imediatamente
+        refetch(); 
       })
       .catch(() =>
         setToast({ message: "Erro ao excluir cômodo", variant: "error" })
