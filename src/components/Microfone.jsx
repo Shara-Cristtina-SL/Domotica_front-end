@@ -1,9 +1,11 @@
 import React, { useState, useRef } from "react";
 import microfoneImg from '../../public/img/microfone.png';
 
+import { Toast } from "../ui/Toast";
+
 export default function Microfone() {
-    // Estados para resposta e status da gravação do áudio
-    const [resposta, setResposta] = useState('');
+    // Estados para toast e status da gravação do áudio
+    const [toast, setToast] = useState({ message: "", variant: "success" });
     const [gravando, setGravando] = useState(false);
 
     // Gravador de áudio
@@ -33,13 +35,23 @@ export default function Microfone() {
                 const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
 
                 // Atualiza a mensagem exibida na página
-                setResposta('Aguarde...');
+                setToast({ message: 'Aguarde...', variant: 'success' });
 
                 // Realiza a requisição e armazena a resposta
                 const respostaRequisicao = await realizarRequisicao(audioBlob);
 
-                // Exibe na página a resposta da requisição
-                setResposta(respostaRequisicao.text);
+                // Verifica qual chave está presente na resposta e exibe o toast
+                if (respostaRequisicao.message) {
+                    setToast({ 
+                        message: respostaRequisicao.message, 
+                        variant: 'success' 
+                    });
+                } else if (respostaRequisicao.error) {
+                    setToast({ 
+                        message: respostaRequisicao.error, 
+                        variant: 'error' 
+                    });
+                }
             };
 
             // Inicia a gravação do áudio
@@ -47,11 +59,11 @@ export default function Microfone() {
 
             // Atualiza o status da gravação e resposta na página
             setGravando(true);
-            setResposta('Escutando...');
+            setToast({ message: 'Escutando...', variant: 'success' });
 
         } catch(error) {
             console.error('Erro ao acessar o microfone:', error);
-            alert('Não foi possível acessar o microfone. Por favor, verifique as permissões do seu navegador.');
+            setToast({ message: 'Não foi possível acessar o microfone. Verifique as permissões.', variant: 'error' });
         };
     };
 
@@ -79,17 +91,20 @@ export default function Microfone() {
                 method: 'POST',
                 body: formData
             });
+            
+            // Transforma resposta da requisição em JSON
+            const data = await response.json();
 
             // Resposta caso ocorra um erro na requisição
             if (!response.ok) {
-                throw new Error(`Erro do servidor: ${resposta.statusText}`)
+                return { error: data.error || `Erro do servidor: ${response.statusText}` };
             }
 
-            // Retorna a resposta da requisição em JSON
-            return await response.json();
+            // Retorna a resposta da requisição
+            return data;
         } catch(error) {
             console.error('Erro:', error);
-            return { text: `Ocorreu um erro: ${error.message}` };
+            return { error: `Ocorreu um erro: ${error.message}` };
         };
     }
 
@@ -118,9 +133,12 @@ export default function Microfone() {
             >
                 <img src={microfoneImg} alt="Gravar" className="h-10 w-10" />
             </button>
-            <div id="resposta" className="mt-2 text-lg">
-                {resposta}
-            </div>
+            
+            <Toast
+                message={toast.message}
+                variant={toast.variant}
+                onClose={() => setToast({ message: "", variant: "success" })}
+            />
         </div>
     );
 };
