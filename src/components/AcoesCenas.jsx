@@ -164,14 +164,17 @@ export default function AcoesCena() {
 
   function handleExecutar(id) {
     setLoading(true);
+
     executarAcaoCena(id)
       .then(() => {
         setToast({ message: "Ação executada!", variant: "success" });
         refetchAcoes();
       })
-      .catch(() =>
-        setToast({ message: "Erro ao executar ação", variant: "error" })
-      )
+      .catch((error) => {
+        const errorMessage = error.message || "Erro ao executar ação";
+
+        setToast({ message: errorMessage, variant: "error" });
+      })
       .finally(() => setLoading(false));
   }
 
@@ -212,32 +215,7 @@ export default function AcoesCena() {
                 className="w-full mt-1 px-4 py-2 bg-slate-50 border rounded-md focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-slate-700">
-                  Ordem
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  value={ordem}
-                  onChange={(e) => setOrdem(e.target.value)}
-                  className="w-full mt-1 px-4 py-2 bg-slate-50 border rounded-md focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-700">
-                  Intervalo (seg)
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  value={intervaloSegundos}
-                  onChange={(e) => setIntervaloSegundos(e.target.value)}
-                  className="w-full mt-1 px-4 py-2 bg-slate-50 border rounded-md focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-            </div>
+            <div className="grid grid-cols-2 gap-4"></div>
             <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-md cursor-pointer">
               <input
                 type="checkbox"
@@ -381,7 +359,6 @@ export default function AcoesCena() {
             className="bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-xl transition-all flex flex-col md:flex-row items-start gap-4"
           >
             <div className="flex items-center gap-4 w-full md:w-2/5">
-              {/* --- ÍCONE COM NÚMERO SOBREPOSTO --- */}
               <div className="relative flex-shrink-0 w-10 h-10">
                 <img
                   src="https://img.icons8.com/?size=100&id=hxPReN9KS3vE&format=png&color=000000"
@@ -396,23 +373,6 @@ export default function AcoesCena() {
               <div>
                 <strong className="text-lg text-slate-800">{acao.nome}</strong>
                 <div className="flex items-center gap-4 text-sm text-slate-500 mt-1">
-                  <span className="flex items-center gap-1">
-                    <svg
-                      className="w-4 h-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                      />
-                    </svg>
-                    {acao.intervaloSegundos}s
-                  </span>
                   <span
                     className={`flex items-center gap-1 font-medium ${
                       acao.estadoDesejado ? "text-green-600" : "text-red-600"
@@ -467,18 +427,6 @@ export default function AcoesCena() {
                         </span>
                       ))
                     : "Nenhum"}
-                </span>
-              </div>
-              <div className="text-xs mt-1">
-                <strong className="text-slate-600">Ordem:</strong>
-                <span className="ml-2">
-                  {acao?.ordem ? (
-                    <span className="inline-block bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full mr-1 mb-1">
-                      {acao.ordem}
-                    </span>
-                  ) : (
-                    "Sem ordem definida"
-                  )}
                 </span>
               </div>
             </div>
