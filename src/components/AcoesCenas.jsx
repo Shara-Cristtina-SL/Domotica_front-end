@@ -164,17 +164,14 @@ export default function AcoesCena() {
 
   function handleExecutar(id) {
     setLoading(true);
-
     executarAcaoCena(id)
       .then(() => {
         setToast({ message: "Ação executada!", variant: "success" });
         refetchAcoes();
       })
-      .catch((error) => {
-        const errorMessage = error.message || "Erro ao executar ação";
-
-        setToast({ message: errorMessage, variant: "error" });
-      })
+      .catch(() =>
+        setToast({ message: "Erro ao executar ação", variant: "error" })
+      )
       .finally(() => setLoading(false));
   }
 
@@ -215,7 +212,6 @@ export default function AcoesCena() {
                 className="w-full mt-1 px-4 py-2 bg-slate-50 border rounded-md focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4"></div>
             <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-md cursor-pointer">
               <input
                 type="checkbox"

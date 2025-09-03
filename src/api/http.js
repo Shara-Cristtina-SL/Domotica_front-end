@@ -8,12 +8,7 @@ export async function request(endpoint, options = {}) {
 
   if (!res.ok) {
     const msg = await res.text();
-
-    throw {
-      status: res.status,
-      statusText: res.statusText,
-      message: msg,
-    };
+    throw new Error(`Erro API: ${res.status} ${res.statusText} - ${msg}`);
   }
 
   if (res.status === 204) return null;
